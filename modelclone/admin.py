@@ -60,6 +60,11 @@ class ClonableModelAdmin(ModelAdmin):
 
     def clone_view(self, request, object_id, form_url='', extra_context=None):
         opts = self.model._meta
+        get_params = getattr(request, 'GET', None)
+        if get_params:
+            skip_fields = get_params.get('skip_fields', [])
+        else:
+            skip_fields = []
 
         if not self.has_add_permission(request):
             raise PermissionDenied
@@ -104,6 +109,8 @@ class ClonableModelAdmin(ModelAdmin):
                 # if original model has any file field, save new model
                 # with same paths to these files
                 for name in vars(original_obj):
+                    if name in skip_fields:
+                        continue
                     field = getattr(original_obj, name)
                     if isinstance(field, FieldFile) and name not in request.FILES:
                         setattr(new_object, name, field)
