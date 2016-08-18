@@ -5,7 +5,7 @@ try:
 except ImportError:
     # django < 1.7
     from django.contrib.admin.util import unquote
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as lazy
@@ -45,11 +45,11 @@ class ClonableModelAdmin(ModelAdmin):
         url_name = '{0}_{1}_clone'.format(
             self.model._meta.app_label,
             getattr(self.model._meta, 'module_name', getattr(self.model._meta, 'model_name', '')))
-        new_urlpatterns = patterns('',
+        new_urlpatterns = [
             url(r'^(.+)/clone/$',
                 self.admin_site.admin_view(self.clone_view),
                 name=url_name)
-        )
+        ]
         original_urlpatterns = super(ClonableModelAdmin, self).get_urls()
 
         return new_urlpatterns + original_urlpatterns
